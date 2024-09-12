@@ -1,0 +1,7 @@
+appsettings.json
+appsettings.Development.json
+launchSettings.json
+Dockerfile
+bin
+obj
+/DragonAPI.http
