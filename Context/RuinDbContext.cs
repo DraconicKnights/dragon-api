@@ -10,6 +10,7 @@ public sealed class RuinDbContext : DbContext
 
     private DbSet<ValidTokenUser> ValidTokenUsers { get; init; } = null!;
     public required DbSet<GlobalPlayerAccount> GlobalPlayerAccounts { get; init; } = null!;
+    public required DbSet<GlobalGroups> GlobalGroups { get; init; } = null!;
     public required DbSet<Token> Tokens { get; init; } = null!;
     public required DbSet<Account> Accounts { get; init; } = null!;
     public required DbSet<Nodes> Nodes { get; init; } = null!;

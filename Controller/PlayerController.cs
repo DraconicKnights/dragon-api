@@ -10,9 +10,9 @@ namespace DragonAPI.Controller;
 public class PlayerController(RuinDbContext context) : ControllerBase
 {
     [HttpGet("{steamId}")]
-    public async Task<ActionResult<GlobalPlayerAccount>> GetGlobalPlayerAccount(ulong steamId)
+    public async Task<ActionResult<GlobalPlayerAccount>> GetPlayerAccount(ulong steamId)
     {
-        var account = await context.GlobalPlayerAccounts
+        var account = await context.GlobalPlayerAccounts.Include(a => a.GlobalGroups)
             .FirstOrDefaultAsync(a => a.PlayerSteamId == steamId);
 
         if (account == null)
@@ -24,18 +24,29 @@ public class PlayerController(RuinDbContext context) : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<GlobalPlayerAccount>> CreateGlobalPlayerAccount(GlobalPlayerAccount account)
+    public async Task<ActionResult<GlobalPlayerAccount>> CreateGlobalPlayerAccount([FromBody] GlobalPlayerAccount newAccount)
     {
-        context.GlobalPlayerAccounts.Add(account);
+        // Check if the player already exists
+        var existingAccount = await context.GlobalPlayerAccounts
+            .FirstOrDefaultAsync(a => a.PlayerSteamId == newAccount.PlayerSteamId);
+
+        if (existingAccount != null)
+        {
+            return Conflict(new { Message = "Player account already exists." });
+        }
+
+        // Add the new account to the context
+        context.GlobalPlayerAccounts.Add(newAccount);
         await context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetGlobalPlayerAccount), new { steamId = account.PlayerSteamId }, account);
+
+        return CreatedAtAction(nameof(GetPlayerAccount), new { steamId = newAccount.PlayerSteamId }, newAccount);
     }
     
     [HttpPut("{steamId}")]
-    public async Task<IActionResult> UpdateGlobalPlayerAccount(ulong steamId, GlobalPlayerAccount updatedAccount)
+    public async Task<IActionResult> UpdateGlobalPlayerAccount(ulong steamId, [FromBody] GlobalPlayerAccount updatedAccount)
     {
         var account = await context.GlobalPlayerAccounts.FirstOrDefaultAsync(a => a.PlayerSteamId == steamId);
-        
+
         if (account == null)
         {
             return NotFound(new { Message = "Player not found." });
@@ -43,10 +54,55 @@ public class PlayerController(RuinDbContext context) : ControllerBase
 
         // Update account properties
         account.PlayerName = updatedAccount.PlayerName;
+        account.DeviceId = updatedAccount.DeviceId;
         account.IsStaff = updatedAccount.IsStaff;
+        account.HasGlobalPerms = updatedAccount.HasGlobalPerms;
         account.GlobalBan = updatedAccount.GlobalBan;
+        account.GlobalGroupName = updatedAccount.GlobalGroupName;
 
         await context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+
+    [HttpPut("{steamId}/assign-group/{groupName}")]
+    public async Task<IActionResult> AssignGroupToPlayer(ulong steamId, string groupName)
+    {
+        var account = await context.GlobalPlayerAccounts.FirstOrDefaultAsync(a => a.PlayerSteamId == steamId);
+        var group = await context.GlobalGroups.FirstOrDefaultAsync(g => g.GroupName == groupName);
+
+        if (account == null)
+        {
+            return NotFound(new { Message = "Player not found." });
+        }
+        if (group == null)
+        {
+            return NotFound(new { Message = "Group not found." });
+        }
+
+        // Assign global group to player
+        account.GlobalGroupName = group.GroupName; // Update this property in your GlobalPlayerAccount class
+        account.GlobalGroups.Add(group);
+        await context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{steamId}/remove-group")]
+    public async Task<IActionResult> RemoveGroupFromPlayer(ulong steamId)
+    {
+        var account = await context.GlobalPlayerAccounts.FirstOrDefaultAsync(a => a.PlayerSteamId == steamId);
+
+        if (account == null)
+        {
+            return NotFound(new { Message = "Player not found." });
+        }
+
+        // Remove global group assignment
+        account.GlobalGroups = null!; // Update this property in your GlobalPlayerAccount class
+        await context.SaveChangesAsync();
+
         return NoContent();
     }
 

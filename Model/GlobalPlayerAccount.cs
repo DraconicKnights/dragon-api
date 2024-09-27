@@ -21,7 +21,14 @@ public class GlobalPlayerAccount
     
     [Column("isStaff")]
     public bool IsStaff { get; set; }
+    [Column("hasGlobalPerms")]
+    public bool HasGlobalPerms { get; set; }
     
     [Column("globalBan")]
     public bool GlobalBan { get; set; }
+    
+    [Column("globalGroupName")]
+    public string GlobalGroupName { get; set; }
+
+    public List<GlobalGroups> GlobalGroups { get; set; } = new();
 }
