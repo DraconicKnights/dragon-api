@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DragonAPI.Controller;
 
+/// <summary>
+/// Player Controller 
+/// </summary>
+/// <param name="context"></param>
 [ApiController]
 [Route("api/[controller]")]
 public class PlayerController(RuinDbContext context) : ControllerBase
@@ -82,7 +86,7 @@ public class PlayerController(RuinDbContext context) : ControllerBase
         }
 
         // Assign global group to player
-        account.GlobalGroupName = group.GroupName; // Update this property in your GlobalPlayerAccount class
+        account.GlobalGroupName = group.GroupName;
         account.GlobalGroups.Add(group);
         await context.SaveChangesAsync();
 
@@ -100,7 +104,7 @@ public class PlayerController(RuinDbContext context) : ControllerBase
         }
 
         // Remove global group assignment
-        account.GlobalGroups = null!; // Update this property in your GlobalPlayerAccount class
+        account.GlobalGroups = null!;
         await context.SaveChangesAsync();
 
         return NoContent();

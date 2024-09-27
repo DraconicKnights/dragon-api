@@ -4,6 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DragonAPI.Controller;
+
+/// <summary>
+/// Global Group Controller
+/// </summary>
+/// <param name="context"></param>
 [ApiController]
 [Route("api/[controller]")]
 public class GlobalGroupController(RuinDbContext context) : ControllerBase

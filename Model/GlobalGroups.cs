@@ -21,7 +21,7 @@ public class GlobalGroups
     public string GroupColour { get; set; }
     
     [Column("permissions")]
-    public List<PlayerPerms> Permissions { get; set; } // Ensure this is serializable
+    public List<PlayerPerms> Permissions { get; set; }
     
     [Column("parentGroupName")]
     public string ParentGroupName { get; set; }
