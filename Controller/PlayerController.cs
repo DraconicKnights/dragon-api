@@ -1,5 +1,6 @@
 using DragonAPI.Context;
 using DragonAPI.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ namespace DragonAPI.Controller;
 [Route("api/[controller]")]
 public class PlayerController(RuinDbContext context) : ControllerBase
 {
+    [Authorize]
     [HttpGet("{steamId}")]
     public async Task<ActionResult<GlobalPlayerAccount>> GetPlayerAccount(ulong steamId)
     {
@@ -26,7 +28,7 @@ public class PlayerController(RuinDbContext context) : ControllerBase
 
         return Ok(account);
     }
-    
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<GlobalPlayerAccount>> CreateGlobalPlayerAccount([FromBody] GlobalPlayerAccount newAccount)
     {
@@ -45,7 +47,7 @@ public class PlayerController(RuinDbContext context) : ControllerBase
 
         return CreatedAtAction(nameof(GetPlayerAccount), new { steamId = newAccount.PlayerSteamId }, newAccount);
     }
-    
+    [Authorize]
     [HttpPut("{steamId}")]
     public async Task<IActionResult> UpdateGlobalPlayerAccount(ulong steamId, [FromBody] GlobalPlayerAccount updatedAccount)
     {
@@ -69,7 +71,7 @@ public class PlayerController(RuinDbContext context) : ControllerBase
         return NoContent();
     }
 
-
+    [Authorize]
     [HttpPut("{steamId}/assign-group/{groupName}")]
     public async Task<IActionResult> AssignGroupToPlayer(ulong steamId, string groupName)
     {
@@ -93,6 +95,7 @@ public class PlayerController(RuinDbContext context) : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{steamId}/remove-group")]
     public async Task<IActionResult> RemoveGroupFromPlayer(ulong steamId)
     {
