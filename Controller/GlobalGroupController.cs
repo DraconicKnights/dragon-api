@@ -1,5 +1,6 @@
 using DragonAPI.Context;
 using DragonAPI.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ public class GlobalGroupController(RuinDbContext context) : ControllerBase
         var groups = await context.GlobalGroups.ToListAsync();
         return Ok(groups);
     }
-
+    
     [HttpGet("{groupName}")]
     public async Task<ActionResult<GlobalGroups>> GetGroup(string groupName)
     {
@@ -31,6 +32,7 @@ public class GlobalGroupController(RuinDbContext context) : ControllerBase
         return Ok(group);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<GlobalGroups>> CreateGroup(GlobalGroups newGroup)
     {
@@ -39,6 +41,7 @@ public class GlobalGroupController(RuinDbContext context) : ControllerBase
         return CreatedAtAction(nameof(GetGroup), new { groupName = newGroup.GroupName }, newGroup);
     }
 
+    [Authorize]
     [HttpPut("{groupName}")]
     public async Task<IActionResult> UpdateGroup(string groupName, GlobalGroups updatedGroup)
     {
@@ -59,6 +62,7 @@ public class GlobalGroupController(RuinDbContext context) : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{groupName}")]
     public async Task<IActionResult> DeleteGroup(string groupName)
     {
